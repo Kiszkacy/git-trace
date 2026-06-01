@@ -59,6 +59,7 @@ wheels = [
 name = "git-trace"
 source = { editable = "." }
 dependencies = [
+    { name = "colorama" },
     { name = "pyvis" },
     { name = "pyyaml" },
 ]
@@ -70,6 +71,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "colorama", specifier = ">=0.4.6" },
     { name = "pyvis", specifier = ">=0.3" },
     { name = "pyyaml", specifier = ">=6.0" },
 ]

@@ -28,7 +28,7 @@ def main():
         )
         sys.exit(1)
 
-    commits: list[Commit] = _fetch_commits(args["branch"], args["repo"], args["after"], args["before"])
+    commits: list[Commit] = _fetch_commits(args["branch"], args["repo"], args["after"], args["before"], args["list"])
     if not commits:
         cprint("[ERROR] No commits found. Check that the branch name and hash bounds are correct, exiting...", color=ERROR_COLOR)
         sys.exit(2)
@@ -49,15 +49,18 @@ def main():
         cprint("[ERROR] No commits left after applying filters, exiting...", color=ERROR_COLOR)
         sys.exit(3)
 
-    cprint(f"Selected {len(commits)} commit(s). Analysing diffs...")
+    if not args["list"]:
+        cprint(f"Selected {len(commits)} commit(s). Analysing diffs...")
 
-    raw_diffs: dict[str, str] = _fetch_diffs(commits, args["repo"])
+    raw_diffs: dict[str, str] = _fetch_diffs(commits, args["repo"], args["list"])
     commits_hash_dict: dict[str, Commit] = {commit.hash: commit for commit in commits}
 
-    cprint("Building dependency graph...")
+    if not args["list"]:
+        cprint("Building dependency graph...")
     dependency_graph: DependencyGraph = build_dependency_graph(commits, raw_diffs, args["ignore-paths"])
     dependency_count: int = sum(1 for dep_set in dependency_graph.relationships.values() if dep_set)
-    cprint(f"  {dependency_count} commit(s) have at least one dependency.\n")
+    if not args["list"]:
+        cprint(f"  {dependency_count} commit(s) have at least one dependency.\n")
 
     if args["picks"]:
         resolved: dict[str, str | None] = resolve_hashes(list(args["picks"]), commits)
@@ -84,24 +87,26 @@ def main():
             display_graph(commits, commits_hash_dict, dependency_graph, output_path=args["output"])
 
 
-def _fetch_commits(branch: str, repo_directory: str, after: str | None, before: str | None) -> list[Commit]:
-    message_parts: list[str] = [f'Fetching commits on "{Color.BRIGHT_BLUE.value}{branch}{Color.RESET.value}"']
+def _fetch_commits(branch: str, repo_directory: str, after: str | None, before: str | None, using_list_arg: bool = False) -> list[Commit]:
+    message_parts: list[str] = [f"Fetching commits on '{Color.BRIGHT_BLUE.value}{branch}{Color.RESET.value}'"]
     if after:
         message_parts.append(f"after {Color.BRIGHT_BLUE.value}{after[:SHORT_HASH_LENGTH]}{Color.RESET.value}")
     if before:
         message_parts.append(f"up to {before[:SHORT_HASH_LENGTH]}")
-    cprint(" ".join(message_parts) + "...")
+    if not using_list_arg:
+        cprint(" ".join(message_parts) + "...")
 
     return get_commits(branch=branch, after=after, before=before, repo_directory=repo_directory)
 
 
-def _fetch_diffs(commits: list[Commit], repo_directory: str) -> dict[str, str]:
+def _fetch_diffs(commits: list[Commit], repo_directory: str, using_list_arg: bool = False) -> dict[str, str]:
     raw_diffs: dict[str, str] = {}
     commit_count: int = len(commits)
     message_index_padding_width: int = len(str(commit_count))
     for index, commit in enumerate(commits, 1):
-        message_index_prefix: str = f"[{index:>{message_index_padding_width}}/{commit_count}]"
-        cprint(f"  {message_index_prefix}  {commit.hash[:SHORT_HASH_LENGTH]}  {commit.message[:MAX_COMMIT_MESSAGE_LENGTH]}")
+        if not using_list_arg:
+            message_index_prefix: str = f"[{index:>{message_index_padding_width}}/{commit_count}]"
+            cprint(f"  {message_index_prefix}  {commit.hash[:SHORT_HASH_LENGTH]}  {commit.message[:MAX_COMMIT_MESSAGE_LENGTH]}")
         raw_diffs[commit.hash] = get_commit_diff(commit.hash, repo_directory=repo_directory)
     return raw_diffs
 

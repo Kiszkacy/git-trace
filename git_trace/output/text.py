@@ -10,7 +10,7 @@ def print_text_tree(commits: list[Commit], commits_hash_dict: dict[str, Commit],
     lines: list[str] = [title]
     cprint(title, color=Color.CYAN)
     for commit in commits:
-        line: str = f"\n  [{'●' if graph.relationships.get(commit.hash) else '○'}] [{commit.hash[:SHORT_HASH_LENGTH]}]  {commits_hash_dict[commit.hash].message[:MAX_COMMIT_MESSAGE_LENGTH]}"
+        line: str = f"  [{'●' if graph.relationships.get(commit.hash) else '○'}] [{commit.hash[:SHORT_HASH_LENGTH]}]  {commits_hash_dict[commit.hash].message[:MAX_COMMIT_MESSAGE_LENGTH]}"
         lines.append(line)
         cprint(line)
 

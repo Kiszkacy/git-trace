@@ -119,7 +119,7 @@ def display_graph(commits: list[Commit], commits_hash_dict: dict[str, Commit], g
     inject_styling(out_path)
     cprint(f"[INFO] Interactive graph saved to:\n{' '*4}{out_path}\n", color=INFO_COLOR)
     webbrowser.open(f"file:///{out_path}") # TODO: make this configurable
-    cprint("[INFO] Opened in your default browser.  Drag nodes freely!\n", color=INFO_COLOR)
+    cprint("[INFO] Opened in your default browser. Drag nodes freely!\n", color=INFO_COLOR)
 
 
 def display_pick_graph(commits: list[Commit], commits_hash_dict: dict[str, Commit], graph: DependencyGraph, analysis: CherryPickAnalysis, output_path: str = "git_trace_pick_output.html"):
@@ -144,7 +144,7 @@ def display_pick_graph(commits: list[Commit], commits_hash_dict: dict[str, Commi
         elif commit_hash in blocked_set:
             role = "blocked"
             missing_msgs: list[str] = [
-                f"  • [{dependency_hash[:SHORT_HASH_LENGTH]}] {commits_hash_dict.get(dependency_hash, Commit("<unknown>", "<unknown>")).message[:MAX_COMMIT_MESSAGE_LENGTH]}"
+                f"  • [{dependency_hash[:SHORT_HASH_LENGTH]}] {commits_hash_dict.get(dependency_hash, Commit('<unknown>', '<unknown>')).message[:MAX_COMMIT_MESSAGE_LENGTH]}"
                 for dependency_hash in sorted(analysis.blocked[commit_hash])
             ]
             status_line = "[✘] Blocked - missing dependencies:\n" + "\n".join(missing_msgs)
@@ -191,7 +191,7 @@ def display_pick_graph(commits: list[Commit], commits_hash_dict: dict[str, Commi
     inject_styling(out_path)
     cprint(f"[INFO] Pick graph saved to:\n{' '*4}{out_path}\n", color=INFO_COLOR)
     webbrowser.open(f"file:///{out_path}") # TODO: make this configurable
-    cprint("[INFO] Opened in your default browser.\n", color=INFO_COLOR)
+    cprint("[INFO] Opened in your default browser. Drag nodes freely!\n", color=INFO_COLOR)
 
 
 def truncate_label(msg: str) -> str:
