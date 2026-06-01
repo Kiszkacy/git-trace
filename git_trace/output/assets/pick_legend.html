@@ -1,0 +1,32 @@
+<style>
+  #gt-legend {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 9999;
+    background: rgba(30,30,46,0.92);
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: monospace;
+    font-size: 12px;
+    color: #eee;
+    line-height: 1.8;
+  }
+  .gt-swatch {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+</style>
+<div id="gt-legend">
+  <div><span class="gt-swatch" style="background:#4caf50"></span>Safe to pick</div>
+  <div><span class="gt-swatch" style="background:#1b7a4a"></span>Safe if parent deps fixed</div>
+  <div><span class="gt-swatch" style="background:#f44336"></span>Blocked (missing deps)</div>
+  <div><span class="gt-swatch" style="background:#ff9800"></span>Missing dependency</div>
+  <div><span class="gt-swatch" style="background:#546e7a"></span>Context (not picked)</div>
+  <div style="margin-top:6px; color:#ff4444">&#8212;&#8212; blocking edge</div>
+  <div style="color:#666">- - - regular dep edge</div>
+</div>

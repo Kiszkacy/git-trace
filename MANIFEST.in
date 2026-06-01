@@ -1,0 +1,12 @@
+include README.md
+include LICENSE
+recursive-include git_trace *.py
+recursive-include git_trace *.html
+
+exclude *.pyc
+exclude tests/*
+exclude MANIFEST.in
+
+recursive-exclude tests *
+
+prune .git

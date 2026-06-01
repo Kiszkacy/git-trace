@@ -1,0 +1,137 @@
+<style>
+  #gt-controls {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(30,30,46,0.92);
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 8px 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    font-family: monospace;
+    font-size: 13px;
+    color: #eee;
+  }
+  #gt-search {
+    background: #2a2a3e;
+    border: 1px solid #666;
+    border-radius: 4px;
+    color: #eee;
+    padding: 4px 8px;
+    width: 220px;
+    font-size: 13px;
+    outline: none;
+  }
+  #gt-search:focus { border-color: #87ceeb; }
+  #gt-search::placeholder { color: #888; }
+  #gt-match-count { color: #aaa; min-width: 60px; }
+  .gt-btn {
+    cursor: pointer;
+    background: #2a2a3e;
+    border: 1px solid #666;
+    border-radius: 4px;
+    color: #eee;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-family: monospace;
+    white-space: nowrap;
+  }
+  .gt-btn:hover { border-color: #87ceeb; }
+  .gt-btn.active { background: #4682b4; border-color: #87ceeb; }
+</style>
+
+<div id="gt-controls">
+  <input id="gt-search" type="text" placeholder="Search commits…" autocomplete="off" />
+  <span id="gt-match-count"></span>
+  <button id="gt-hide-isolated" class="gt-btn">Hide isolated</button>
+  <button id="gt-hide-resolved" class="gt-btn">Hide safe &amp; context</button>
+</div>
+
+<script>
+(function () {
+  var CONTEXT_BG = "#546e7a";
+  var SAFE_BG    = "#4caf50";
+
+  function waitForNetwork(cb) {
+    var t = setInterval(function () {
+      if (typeof network !== "undefined") { clearInterval(t); cb(); }
+    }, 100);
+  }
+
+  waitForNetwork(function () {
+    var allNodes = network.body.data.nodes;
+    var allEdges = network.body.data.edges;
+
+    var searchInput = document.getElementById("gt-search");
+    var matchCount  = document.getElementById("gt-match-count");
+    var btnIsolated = document.getElementById("gt-hide-isolated");
+    var btnResolved = document.getElementById("gt-hide-resolved");
+
+    var hideIsolated = false;
+    var hideResolved = false;
+
+    function connectedIds() {
+      var ids = new Set();
+      allEdges.getIds().forEach(function (eid) {
+        var e = allEdges.get(eid);
+        ids.add(e.from); ids.add(e.to);
+      });
+      return ids;
+    }
+
+    function applyFilters() {
+      var query     = searchInput.value.trim().toLowerCase();
+      var connected = hideIsolated ? connectedIds() : null;
+      var updates   = [];
+      var matchTotal = 0;
+
+      allNodes.getIds().forEach(function (nid) {
+        var node   = allNodes.get(nid);
+        var bg     = node.color && node.color.background ? node.color.background : "";
+        var label  = (node.label  || "").toLowerCase();
+        var title  = (typeof node.title === "string" ? node.title : "").toLowerCase();
+        var hidden = false;
+
+        if (hideIsolated && connected && !connected.has(nid)) { hidden = true; }
+        if (!hidden && hideResolved && (bg === SAFE_BG || bg === CONTEXT_BG)) { hidden = true; }
+
+        if (!hidden && query) {
+          var matches = label.includes(query) || title.includes(query);
+          if (!matches) { hidden = true; } else { matchTotal++; }
+        } else if (!hidden) {
+          matchTotal++;
+        }
+
+        updates.push({ id: nid, hidden: hidden });
+      });
+
+      allNodes.update(updates);
+      matchCount.textContent = query ? matchTotal + " found" : "";
+    }
+
+    function toggleBtn(btn, active, onLabel, offLabel) {
+      btn.classList.toggle("active", active);
+      btn.textContent = active ? onLabel : offLabel;
+    }
+
+    searchInput.addEventListener("input", applyFilters);
+
+    btnIsolated.addEventListener("click", function () {
+      hideIsolated = !hideIsolated;
+      toggleBtn(btnIsolated, hideIsolated, "Show isolated", "Hide isolated");
+      applyFilters();
+    });
+
+    btnResolved.addEventListener("click", function () {
+      hideResolved = !hideResolved;
+      toggleBtn(btnResolved, hideResolved, "Show safe & context", "Hide safe & context");
+      applyFilters();
+    });
+  });
+})();
+</script>

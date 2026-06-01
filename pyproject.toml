@@ -1,0 +1,67 @@
+[project]
+name = "git-trace"
+description = "Visualise git commit dependencies – see which commits edit lines introduced by earlier commits."
+authors = [
+  {name = "Karol Kiszka", email = "karolkisz22@gmail.com"}
+]
+readme = "README.md"
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+]
+dependencies = [
+    "pyvis>=0.3",
+    "pyyaml>=6.0",
+    "colorama>=0.4.6",
+]
+requires-python = ">=3.10,<4.0"
+keywords = ["git"]
+dynamic = ["version"]
+
+[project.scripts]
+git-trace = "git_trace.main:main"
+
+[project.urls]
+source = "https://github.com/kiszkacy/git-trace"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["git_trace*"]
+
+[tool.setuptools.package-data]
+"git_trace" = ["output/assets/*.html"]
+
+[tool.setuptools.dynamic]
+version = {attr = "git_trace.version.__version__"}
+
+[tool.coverage.report]
+include_namespace_packages = true
+omit = ["**/__init__.py"]
+skip_empty = true
+
+[tool.ruff.lint]
+ignore = ["F811"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
