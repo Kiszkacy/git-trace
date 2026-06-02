@@ -1,5 +1,9 @@
 # git-trace
 
+![Python version](https://img.shields.io/badge/python-%3E%3D%203.10-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![PyPI](https://img.shields.io/pypi/v/git-trace.svg)
+
 Visualize commit dependencies in a git repository. For a given branch (or commit
 range) `git-trace` analyses every diff and reports which commits **depend** on
 earlier ones, in the sense that they modify or remove lines previously added by
@@ -14,6 +18,8 @@ A secondary mode (`--picks`) treats the analysis as a cherry-pick safety check:
 given a set of commit hashes you intend to pick, it tells you which are safe,
 which are blocked by missing dependencies, and which would become "conditional"
 on picking other commits as well.
+
+![git-trace demo](docs/demo.png)
 
 ## Installation
 
